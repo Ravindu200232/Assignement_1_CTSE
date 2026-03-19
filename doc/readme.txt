@@ -1,4 +1,3 @@
-Here's a clean and structured `README.md` file based on the information you provided for your Food Ordering System:
 
 
 # Food Ordering System — Deployment Guide
@@ -18,14 +17,14 @@ This document provides the step-by-step instructions to deploy the **Food Orderi
 ### 1. Clone the Project Repository
 
 ```bash
-git clone https://github.com/Ravindu200232/Food-Ordering-App.git
-cd Food-Ordering-App
+git clone GitHub Rep---> https://github.com/Ravindu200232/Food-Ordering-App.git
+cd your-repo-name
 ```
 
 > Make sure your local folder structure includes:
 > - `/server/user-service`
 > - `/server/order-service`
-> - `/server/restaurant-service`
+> - `/server/Restaurant-service`
 > - `/server/deliver-service`
 > - `/server/payment-service`
 > - `/server/notification-server`
@@ -35,7 +34,7 @@ cd Food-Ordering-App
 
 ### 2. Verify Dockerfile and docker-compose.yml
 
-Ensure each service folder (`user-service`, `order-service`, `restaurant-service`, etc.) contains a valid `Dockerfile`.
+Ensure each service folder (`user-service`, `order-service`, `Restaurant-service`, etc.) contains a valid `Dockerfile`.
 
 The root folder should have the provided `docker-compose.yml`.
 
@@ -78,7 +77,7 @@ This will:
 | `docker-compose down`           | Stop and remove services and networks |
 | `docker-compose up --build`     | Build and start fresh                 |
 | `docker ps`                     | List running containers               |
-| `docker-compose logs -f`        | Stream logs from all services         |
+| `docker-compose logs -f`         | Stream logs from all services         |
 
 ---
 
@@ -90,15 +89,6 @@ This will:
 
 ---
 
-# ✅ Congratulations!
-
-You have successfully set up the **Food Ordering System**! 🎉
-
----
-
-## Project File Structure
-
-```plaintext
 food-ordering-app/
 │
 ├── client/                  # Frontend (React app)
@@ -172,12 +162,8 @@ food-ordering-app/
 ├── README.md                  # Project overview and setup instructions
 ├── .gitignore                 # Ignore node_modules, build, etc.
 └── LICENSE                    # Open source license (optional)
-```
 
----
 
-## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```
+# ✅ Congratulations!
 

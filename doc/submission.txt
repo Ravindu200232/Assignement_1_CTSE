@@ -1,0 +1,46 @@
+Youtube --> https://youtu.be/nNHRb8NDMdM?si=uC1FVCW0y2xFmqK-
+
+GitHub Rep---> https://github.com/Ravindu200232/Food-Ordering-App.git
+
+main (All these service repos are integrated in the main repo)
+https://github.com/Ravindu200232/Food-Ordering-App.git 
+
+client 
+https://github.com/Ravindu200232/Food-Ordering-App.git 
+
+
+restaurant service
+ https://github.com/Ravindu200232/Food-Ordering-App.git 
+
+user service
+ https://github.com/Ravindu200232/Food-Ordering-App.git 
+
+delivery service
+https://github.com/Ravindu200232/Food-Ordering-App.git 
+
+notification sevice
+https://github.com/Ravindu200232/Food-Ordering-App.git 
+
+payment service
+https://github.com/Ravindu200232/Food-Ordering-App.git 
+
+order service
+https://github.com/Ravindu200232/Food-Ordering-App.git 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
