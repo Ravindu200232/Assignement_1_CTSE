@@ -101,8 +101,28 @@ jobs:
 
       - name: Download ECS task definition
         run: |
-          aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION }} \
-            --query taskDefinition > task-definition.json
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.ECS_TASK_DEFINITION }} \
+            --query taskDefinition > task-definition-raw.json
+
+          cat task-definition-raw.json | \
+            python3 -c "
+          import json, sys
+          td = json.load(sys.stdin)
+          remove_keys = [
+            'taskDefinitionArn',
+            'revision',
+            'status',
+            'requiresAttributes',
+            'compatibilities',
+            'registeredAt',
+            'registeredBy',
+            'enableFaultInjection'
+          ]
+          for key in remove_keys:
+            td.pop(key, None)
+          print(json.dumps(td, indent=2))
+          " > task-definition.json
 
       - name: Update ECS task definition with new image
         id: task-def
