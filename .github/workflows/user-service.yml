@@ -17,6 +17,7 @@ env:
   ECS_CLUSTER: food-ordering-cluster
   ECS_SERVICE: user-service
   CONTAINER_NAME: user-service
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   security-scan:
@@ -41,10 +42,12 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high --file=./server/user-service/package.json
+          args: --severity-threshold=high --sarif-file-output=snyk.sarif
+          command: test
+        working-directory: ./server/user-service
 
       - name: Upload Snyk results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         continue-on-error: true
         with:
