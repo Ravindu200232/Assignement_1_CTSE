@@ -15,9 +15,9 @@ env:
   AWS_REGION: eu-north-1
   ECR_REPOSITORY: food-ordering/delivery-service
   ECS_CLUSTER: food-ordering-cluster
-  ECS_SERVICE: deliver-service
+  ECS_SERVICE: delivery-service
   ECS_TASK_DEFINITION: delivery-service-task
-  CONTAINER_NAME: deliver-service
+  CONTAINER_NAME: delivery-service
 
 jobs:
   security-scan:
