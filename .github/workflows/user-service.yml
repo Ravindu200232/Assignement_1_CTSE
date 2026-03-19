@@ -16,6 +16,7 @@ env:
   ECR_REPOSITORY: food-ordering/user-service
   ECS_CLUSTER: food-ordering-cluster
   ECS_SERVICE: user-service
+  ECS_TASK_DEFINITION: user-service-task
   CONTAINER_NAME: user-service
 
 jobs:
@@ -100,7 +101,7 @@ jobs:
 
       - name: Download ECS task definition
         run: |
-          aws ecs describe-task-definition --task-definition ${{ env.ECS_SERVICE }} \
+          aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION }} \
             --query taskDefinition > task-definition.json
 
       - name: Update ECS task definition with new image
@@ -117,4 +118,4 @@ jobs:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
+          wait-for-service-stability: false
