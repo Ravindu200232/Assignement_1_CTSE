@@ -19,7 +19,7 @@ env:
   CONTAINER_NAME: notification-service
 
 jobs:
-  security-scan:
+security-scan:
     name: Security Scan (Snyk)
     runs-on: ubuntu-latest
     steps:
@@ -30,9 +30,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
       - name: Install dependencies
-        working-directory: ./server/notification-server
+        working-directory: ./server/user-service
         run: npm ci
 
       - name: Run Snyk security scan
@@ -40,8 +42,9 @@ jobs:
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
         with:
-          args: --severity-threshold=high --file=./server/notification-server/package.json
+          args: --severity-threshold=high --sarif-file-output=snyk.sarif
 
       - name: Upload Snyk results to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
@@ -49,6 +52,8 @@ jobs:
         continue-on-error: true
         with:
           sarif_file: snyk.sarif
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
   build-and-push:
     name: Build & Push to ECR
