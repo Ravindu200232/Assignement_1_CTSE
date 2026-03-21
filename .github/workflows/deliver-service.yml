@@ -1,23 +1,23 @@
-name: user-service CI/CD
+name: deliver-service CI/CD
 
 on:
   push:
     branches: [main]
     paths:
-      - 'server/user-service/**'
-      - '.github/workflows/user-service.yml'
+      - 'server/deliver-service/**'
+      - '.github/workflows/deliver-service.yml'
   pull_request:
     branches: [main]
     paths:
-      - 'server/user-service/**'
+      - 'server/deliver-service/**'
 
 env:
   AWS_REGION: eu-north-1
-  ECR_REPOSITORY: food-ordering/user-service
+  ECR_REPOSITORY: food-ordering/delivery-service
   ECS_CLUSTER: food-ordering-cluster
-  ECS_SERVICE: user-service
-  ECS_TASK_DEFINITION: user-service-task
-  CONTAINER_NAME: user-service
+  ECS_SERVICE: deliver-service
+  ECS_TASK_DEFINITION: delivery-service-task
+  CONTAINER_NAME: delivery-service
 
 jobs:
   security-scan:
@@ -33,12 +33,12 @@ jobs:
         with:
           node-version: '20'
       - name: Install dependencies
-        working-directory: ./server/user-service
+        working-directory: ./server/deliver-service
         run: npm install --legacy-peer-deps || true
       - name: Install Snyk CLI
         run: npm install -g snyk || true
       - name: Run Snyk security scan
-        working-directory: ./server/user-service
+        working-directory: ./server/deliver-service
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk test --severity-threshold=high || true
@@ -68,7 +68,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
-        working-directory: ./server/user-service
+        working-directory: ./server/deliver-service
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
