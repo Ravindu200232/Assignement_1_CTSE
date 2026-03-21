@@ -15,7 +15,7 @@ env:
   AWS_REGION: eu-north-1
   ECR_REPOSITORY: food-ordering/delivery-service
   ECS_CLUSTER: food-ordering-cluster
-  ECS_SERVICE: deliver-service
+  ECS_SERVICE: delivery-service
   ECS_TASK_DEFINITION: delivery-service-task
   CONTAINER_NAME: delivery-service
 
@@ -28,15 +28,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
       - name: Install dependencies
         working-directory: ./server/deliver-service
         run: npm install --legacy-peer-deps || true
+
       - name: Install Snyk CLI
         run: npm install -g snyk || true
+
       - name: Run Snyk security scan
         working-directory: ./server/deliver-service
         env:
@@ -54,15 +58,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+
       - name: Build, tag, and push Docker image to ECR
         id: build-image
         env:
@@ -84,17 +91,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+
       - name: Download ECS task definition
         run: |
           aws ecs describe-task-definition \
             --task-definition ${{ env.ECS_TASK_DEFINITION }} \
             --query taskDefinition > task-definition-raw.json
+
           cat task-definition-raw.json | \
             python3 -c "
           import json, sys
@@ -108,6 +118,7 @@ jobs:
             td.pop(key, None)
           print(json.dumps(td, indent=2))
           " > task-definition.json
+
       - name: Update ECS task definition with new image
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
@@ -115,6 +126,7 @@ jobs:
           task-definition: task-definition.json
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ needs.build-and-push.outputs.image }}
+
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
