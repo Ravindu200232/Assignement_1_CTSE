@@ -1,13 +1,17 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-export function connectToDatabase() {
 
-    const MONGOURL =  process.env.MONGO_URL;
+dotenv.config();
 
-    mongoose.connect(MONGOURL);
+export async function connectToDatabase() {
+  const MONGO_URL = process.env.MONGO_URL;
+    console.log("MONGO_URL:", process.env.MONGO_URL);
 
-    const connection = mongoose.connection;
-    connection.once('open',()=>{
-        console.log("MongoDB database connection established successfully");
-    })
+  try {
+    await mongoose.connect(MONGO_URL);
+    console.log("MongoDB database connection established successfully");
+  } catch (error) {
+    console.error("MongoDB connection failed:", error);
+  }
 }

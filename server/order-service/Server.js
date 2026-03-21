@@ -30,10 +30,10 @@ app.use(bodyParser.json());
 
 app.use((req, res, next) => {
   let token = req.header('Authorization');
-  if (token \!= null) {
+  if (token!= null) {
     token = token.replace('Bearer ', '');
     jwt.verify(token, process.env.SEKRET_KEY, (err, decode) => {
-      if (\!err) { req.user = decode; }
+      if (!err) { req.user = decode; }
     });
   }
   next();
@@ -47,7 +47,7 @@ const swaggerOptions = {
       version: '1.0.0',
       description: 'Order Service for Food Ordering App',
     },
-    servers: [{ url: \ }],
+    servers: [{ url: `http://localhost:${process.env.PORT || 3003}` }],
     components: {
       securitySchemes: {
         bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
@@ -68,8 +68,8 @@ app.get('/health', (req, res) => {
 
 app.use('/api/v1/orders', orderRoute);
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3003;
 app.listen(PORT, () => {
-  console.log(\);
-  console.log(\);
+  console.log(`Order service running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV}`);
 });

@@ -32,10 +32,10 @@ app.use(bodyParser.json());
 
 app.use((req, res, next) => {
   let token = req.header('Authorization');
-  if (token \!= null) {
+  if (token != null) {
     token = token.replace('Bearer ', '');
     jwt.verify(token, process.env.SEKRET_KEY, (err, decode) => {
-      if (\!err) { req.user = decode; }
+      if (!err) { req.user = decode; }
     });
   }
   next();
@@ -49,7 +49,7 @@ const swaggerOptions = {
       version: '1.0.0',
       description: 'Restaurant Service for Food Ordering App',
     },
-    servers: [{ url: \ }],
+    servers: [{ url: `http://localhost:${process.env.PORT || 3002}` }],
     components: {
       securitySchemes: {
         bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
@@ -74,6 +74,6 @@ app.use('/api/v1/reviews', reviewRouter);
 
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
-  console.log(\);
-  console.log(\);
+  console.log(`Restaurant service running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV}`);
 });
