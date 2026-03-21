@@ -1,0 +1,99 @@
+name: Client CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'client/**'
+
+env:
+  AWS_REGION: eu-north-1
+  ECR_REPOSITORY: food-ordering/client
+  ECS_CLUSTER: food-ordering-cluster
+  ECS_SERVICE: client-service
+  CONTAINER_NAME: client
+
+jobs:
+  build-and-push:
+    name: Build & Push to ECR
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.build-image.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        working-directory: ./client
+        run: |
+          docker build \
+            --build-arg VITE_USER_SERVICE_URL=${{ secrets.VITE_USER_SERVICE_URL }} \
+            --build-arg VITE_ORDER_SERVICE_URL=${{ secrets.VITE_ORDER_SERVICE_URL }} \
+            --build-arg VITE_RESTAURANT_SERVICE_URL=${{ secrets.VITE_RESTAURANT_SERVICE_URL }} \
+            --build-arg VITE_DELIVER_SERVICE_URL=${{ secrets.VITE_DELIVER_SERVICE_URL }} \
+            --build-arg VITE_PAYMENT_SERVICE_URL=${{ secrets.VITE_PAYMENT_SERVICE_URL }} \
+            --build-arg VITE_NOTIFICATION_SERVICE_URL=${{ secrets.VITE_NOTIFICATION_SERVICE_URL }} \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+  deploy:
+    name: Deploy to ECS
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition client-service-task \
+            --query taskDefinition > task-definition-raw.json
+
+          cat task-definition-raw.json | \
+            python3 -c "
+          import json, sys
+          td = json.load(sys.stdin)
+          for key in ['taskDefinitionArn','revision','status','requiresAttributes','compatibilities','registeredAt','registeredBy','enableFaultInjection']:
+            td.pop(key, None)
+          print(json.dumps(td, indent=2))
+          " > task-definition.json
+
+      - name: Update ECS task definition with new image
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ needs.build-and-push.outputs.image }}
+
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: false
