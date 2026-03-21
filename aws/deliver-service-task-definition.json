@@ -1,60 +1,34 @@
 {
-  "family": "deliver-service",
+  "family": "delivery-service-task",
   "networkMode": "awsvpc",
-  "requiresCompatibilities": [
-    "FARGATE"
-  ],
+  "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
   "memory": "512",
-  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
-  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskRole",
+  "executionRoleArn": "arn:aws:iam::564956048347:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
-      "name": "deliver-service",
-      "image": "ACCOUNT_ID.dkr.ecr.ap-southeast-1.amazonaws.com/food-ordering/deliver-service:latest",
-      "portMappings": [
-        {
-          "containerPort": 3003,
-          "protocol": "tcp"
-        }
-      ],
+      "name": "delivery-service",
+      "image": "564956048347.dkr.ecr.eu-north-1.amazonaws.com/food-ordering/delivery-service:latest",
+      "portMappings": [{"containerPort": 3005, "protocol": "tcp"}],
       "environment": [
-        {
-          "name": "PORT",
-          "value": "3003"
-        },
-        {
-          "name": "NODE_ENV",
-          "value": "production"
-        }
-      ],
-      "secrets": [
-        {
-          "name": "MONGO_URL",
-          "valueFrom": "arn:aws:secretsmanager:ap-southeast-1:ACCOUNT_ID:secret:food-ordering/MONGO_URL"
-        },
-        {
-          "name": "SEKRET_KEY",
-          "valueFrom": "arn:aws:secretsmanager:ap-southeast-1:ACCOUNT_ID:secret:food-ordering/SEKRET_KEY"
-        }
+        {"name": "PORT", "value": "3005"},
+        {"name": "NODE_ENV", "value": "production"},
+        {"name": "MONGO_URL", "value": "mongodb+srv://ravindu:RZiKcs3ak7518SuR@cluster0.vikkn.mongodb.net/FoodOrderApp?appName=Cluster0"},
+        {"name": "SEKRET_KEY", "value": "ravindu2232"},
+        {"name": "ORDER_SERVICE_URL", "value": "http://order-service:3003"},
+        {"name": "NOTIFICATION_SERVICE_URL", "value": "http://notification-service:3006"}
       ],
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/food-ordering/deliver-service",
-          "awslogs-region": "ap-southeast-1",
+          "awslogs-group": "/ecs/food-ordering/delivery-service",
+          "awslogs-region": "eu-north-1",
           "awslogs-stream-prefix": "ecs"
         }
       },
       "healthCheck": {
-        "command": [
-          "CMD-SHELL",
-          "wget -qO- http://localhost:3003/health || exit 1"
-        ],
-        "interval": 30,
-        "timeout": 10,
-        "retries": 3,
-        "startPeriod": 60
+        "command": ["CMD-SHELL", "wget -qO- http://localhost:3005/health || exit 1"],
+        "interval": 30, "timeout": 10, "retries": 3, "startPeriod": 60
       },
       "essential": true
     }
