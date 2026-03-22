@@ -16,10 +16,10 @@ export default function RestaurantOrder() {
         const token = localStorage.getItem("token");
 
         const [ordersResponse, driversResponse] = await Promise.all([
-          axios.get(`http://localhost:3001/api/v1/orders`, {
+          axios.get(`${import.meta.env.VITE_ORDER_SERVICE_URL}/api/v1/orders`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get(`http://localhost:3003/api/v1/driver`, {
+          axios.get(`${import.meta.env.VITE_DELIVER_SERVICE_URL}/api/v1/driver`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -42,7 +42,7 @@ export default function RestaurantOrder() {
       const token = localStorage.getItem("token");
 
       await axios.put(
-        `http://localhost:3001/api/v1/orders/status/${orderId}`,
+        `${import.meta.env.VITE_ORDER_SERVICE_URL}/api/v1/orders/status/${orderId}`,
         { status: newStatus },
         {
           headers: {
@@ -74,7 +74,7 @@ export default function RestaurantOrder() {
        
 
         await axios.post(
-          `http://localhost:3003/api/v1/delivery`,
+          `${import.meta.env.VITE_DELIVER_SERVICE_URL}/api/v1/delivery`,
           {
             orderId,
             driverId,
@@ -105,7 +105,7 @@ export default function RestaurantOrder() {
 
 
         await axios.post(
-          `http://localhost:3005/api/v1/notification`,
+          `${import.meta.env.VITE_NOTIFICATION_SERVICE_URL}/api/v1/notification`,
           {
             orderId,
             driverId,
@@ -158,7 +158,7 @@ export default function RestaurantOrder() {
         setLoading(true);
         const token = localStorage.getItem("token");
         await axios.delete(
-          `http://localhost:3001/api/v1/orders/delete/${orderId}`,
+          `${import.meta.env.VITE_ORDER_SERVICE_URL}/api/v1/orders/delete/${orderId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

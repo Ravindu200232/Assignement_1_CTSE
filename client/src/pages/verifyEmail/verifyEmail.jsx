@@ -23,7 +23,7 @@ export default function VerifyEmail() {
     setStatus("Sending verification email...");
     try {
       const response = await fetch(
-        `http://localhost:3000/api/v1/users/sendOTP`,
+        `${import.meta.env.VITE_USER_SERVICE_URL}/api/v1/users/sendOTP`,
         {
           method: "GET",
           headers: {
@@ -65,7 +65,7 @@ export default function VerifyEmail() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/v1/users/verifyOTP`,
+        `${import.meta.env.VITE_USER_SERVICE_URL}/api/v1/users/verifyOTP`,
         {
           method: "POST",
           headers: {

@@ -42,7 +42,7 @@ export default function AddRestaurant() {
       );
 
       const response = await axios.post(
-        `http://localhost:3002/api/v1/restaurant`,
+        `${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/restaurant`,
         {
           ...restaurantData,
           images: uploadedUrls,

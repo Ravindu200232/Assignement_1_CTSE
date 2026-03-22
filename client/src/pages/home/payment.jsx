@@ -49,7 +49,7 @@ export function Payment() {
       // Make separate requests for each bookingId
       for (const bookingId of bookingIds) {
         await axios.post(
-          `http://localhost:3004/api/payment`,
+          `${import.meta.env.VITE_PAYMENT_SERVICE_URL}/api/payment`,
           {
             bookingId,
             amount: perBookingAmount,

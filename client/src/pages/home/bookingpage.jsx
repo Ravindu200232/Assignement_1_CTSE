@@ -20,7 +20,7 @@ export function BookingPage() {
     const cartInfo = LoadCart();
     console.log(cartInfo)
     axios
-      .post(`http://localhost:3001/api/v1/orders/quote`, cartInfo)
+      .post(`${import.meta.env.VITE_ORDER_SERVICE_URL}/api/v1/orders/quote`, cartInfo)
       .then((res) => {
         console.log(res.data.orderItem);
         setTotal(res.data.total);
@@ -43,7 +43,7 @@ export function BookingPage() {
     const token = localStorage.getItem("token");
     console.log(token)
     axios
-      .post(`http://localhost:3001/api/v1/orders`, cart, {
+      .post(`${import.meta.env.VITE_ORDER_SERVICE_URL}/api/v1/orders`, cart, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

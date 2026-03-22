@@ -41,7 +41,7 @@ export default function AddCollection() {
       };
 
       const result = await axios.post(
-        `http://localhost:3002/api/v1/collection`,
+        `${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/collection`,
         payload,
         {
           headers: {

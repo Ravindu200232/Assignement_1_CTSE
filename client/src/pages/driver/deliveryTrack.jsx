@@ -12,7 +12,7 @@ export function DeliveryTrack() {
 
   const fetchDeliveries = async () => {
     try {
-      const res = await axios.get("http://localhost:3003/api/v1/delivery", {
+      const res = await axios.get("${import.meta.env.VITE_DELIVER_SERVICE_URL}/api/v1/delivery", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setDeliveries(res.data);
@@ -24,7 +24,7 @@ export function DeliveryTrack() {
   const updateStatus = async (id, status) => {
     try {
       await axios.put(
-        `http://localhost:3003/api/v1/delivery/update/${id}`,
+        `${import.meta.env.VITE_DELIVER_SERVICE_URL}/api/v1/delivery/update/${id}`,
         { status },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -46,7 +46,7 @@ export function DeliveryTrack() {
         const { latitude, longitude } = position.coords;
 
         await axios.put(
-          `http://localhost:3003/api/v1/delivery/location/${id}`,
+          `${import.meta.env.VITE_DELIVER_SERVICE_URL}/api/v1/delivery/location/${id}`,
           { lat: latitude, lng: longitude },
           {
             headers: { Authorization: `Bearer ${token}` },

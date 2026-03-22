@@ -39,7 +39,7 @@ export default function RestaurantRegister() {
     }
 
     try {
-      await axios.post(`http://localhost:3000/api/v1/users`, {
+      await axios.post(`${import.meta.env.VITE_USER_SERVICE_URL}/api/v1/users`, {
         email,
         password,
         firstName,

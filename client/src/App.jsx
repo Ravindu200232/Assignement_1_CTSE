@@ -15,7 +15,6 @@ import RestaurantRegister from "./pages/restaurant signup/resregister";
 import DriverRegister from "./pages/driver signup/drregister";
 import DriverPage from "./pages/driver/driverPage";
 
-
 function App() {
   return (
     <GoogleOAuthProvider clientId="964342724823-b4bjne48paevmqpvbi48b5ebepjsiefe.apps.googleusercontent.com">
@@ -29,16 +28,15 @@ function App() {
           <Route path="/register/*" element={<Register />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/payment" element={<Payment />} />
-          <Route path="restaurantC/*" element={<RestaurantPage/>}/>
+          <Route path="restaurantC/*" element={<RestaurantPage />} />
           <Route path="/restaurant-signup" element={<RestaurantRegister />} />
-          <Route path="/driver-signup" element={<DriverRegister/>}/>
-          <Route path="driver/*" element={<DriverPage/>}/>
+          <Route path="/driver-signup" element={<DriverRegister />} />
+          <Route path="driver/*" element={<DriverPage />} />
 
           <Route
             path="/bookingconfirmation"
             element={<BookingConfirmation />}
           />
-         
         </Routes>
       </BrowserRouter>
     </GoogleOAuthProvider>

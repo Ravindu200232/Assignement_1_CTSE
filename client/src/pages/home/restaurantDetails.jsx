@@ -20,11 +20,11 @@ export default function RestaurantDetails() {
       if (!id) return setLoading(false);
 
       try {
-        const res = await axios.get(`http://localhost:3002/api/v1/restaurant/getOne/${id}`);
+        const res = await axios.get(`${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/restaurant/getOne/${id}`);
         setRestaurant(res.data);
         console.log(res.data);
 
-        const collRes = await axios.get(`http://localhost:3002/api/v1/collection/getAll/${id}`);
+        const collRes = await axios.get(`${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/collection/getAll/${id}`);
         setCollections(collRes.data || []);
         console.log(collRes);
       } catch (err) {

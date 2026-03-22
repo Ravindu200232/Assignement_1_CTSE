@@ -10,7 +10,7 @@ export function AdminReviewPage() {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `http://localhost:3002/api/v1/reviews`,
+        `${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/reviews`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -29,7 +29,7 @@ export function AdminReviewPage() {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        `http://localhost:3002/api/v1/reviews/approve/${id}`,
+        `${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/reviews/approve/${id}`,
         {},
         {
           headers: {
@@ -58,7 +58,7 @@ export function AdminReviewPage() {
       try {
         const token = localStorage.getItem("token");
         await axios.delete(
-          `http://localhost:3002/api/v1/reviews/delete/${id}`,
+          `${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/reviews/delete/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

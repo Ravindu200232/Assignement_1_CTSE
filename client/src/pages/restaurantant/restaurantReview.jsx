@@ -10,7 +10,7 @@ export function RestaurantReview() {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `http://localhost:3002/api/v1/reviews`,
+        `${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/reviews`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

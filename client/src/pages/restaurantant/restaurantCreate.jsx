@@ -36,7 +36,7 @@ export default function RestaurantCreate() {
     if (result.isConfirmed) {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.delete(`http://localhost:3002/api/v1/restaurant/delete/${id}`, {
+        const response = await axios.delete(`${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/restaurant/delete/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -65,7 +65,7 @@ export default function RestaurantCreate() {
   const fetchRestaurants = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:3002/api/v1/restaurant", {
+      const response = await axios.get("${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/restaurant", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRestaurants(response.data);
@@ -84,8 +84,8 @@ export default function RestaurantCreate() {
     try {
       const token = localStorage.getItem("token");
       const endpoint = shouldOpen
-        ? `http://localhost:3002/api/v1/restaurant/isOpen/${id}`
-        : `http://localhost:3002/api/v1/restaurant/isClose/${id}`;
+        ? `${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/restaurant/isOpen/${id}`
+        : `${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/restaurant/isClose/${id}`;
 
       const response = await axios.post(
         endpoint,

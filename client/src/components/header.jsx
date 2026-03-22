@@ -91,8 +91,8 @@ export default function Header() {
           <Link to="/contact" className="text-[18px] hover:text-gray-400">
             Contact
           </Link>
-          <Link to="/gallery" className="text-[18px] hover:text-gray-400">
-            Gallery
+          <Link to="/restaurant" className="text-[18px] hover:text-gray-400">
+            Restaurants
           </Link>
           <Link to="/item" className="text-[18px] hover:text-gray-400">
             Items

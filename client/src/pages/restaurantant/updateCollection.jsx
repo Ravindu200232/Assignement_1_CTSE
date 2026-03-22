@@ -43,7 +43,7 @@ export default function UpdateCollection() {
 
     try {
       const result = await axios.put(
-        `http://localhost:3002/api/v1/collection/update/${data._id}`,
+        `${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/collection/update/${data._id}`,
         {
           name: itemName,
           price: itemPrice,

@@ -12,7 +12,7 @@ export function AdminPayment() {
     const fetchPayments = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(`http://localhost:3004/api/payment`, {
+        const res = await axios.get(`${import.meta.env.VITE_PAYMENT_SERVICE_URL}/api/payment`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

@@ -27,7 +27,7 @@ export default function UpdateRestaurant() {
       }
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(`http://localhost:3002/api/v1/restaurant/getOne/${id}`, {
+        const response = await axios.get(`${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/restaurant/getOne/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         console.log(response)
@@ -79,7 +79,7 @@ export default function UpdateRestaurant() {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
-        `http://localhost:3002/api/v1/restaurant/update/${id}`,
+        `${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/restaurant/update/${id}`,
         restaurantData,
         {
           headers: { Authorization: `Bearer ${token}` },

@@ -14,7 +14,7 @@ export default function Item() {
   useEffect(() => {
     if (state === "loading") {
       axios
-        .get(`http://localhost:3002/api/v1/collection`)
+        .get(`${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/collection`)
         .then((res) => {
           const allItems = res.data;
           setItems(allItems);

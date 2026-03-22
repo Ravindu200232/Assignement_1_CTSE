@@ -66,7 +66,7 @@ export function Available() {
       const token = localStorage.getItem("token");
       console.log(driver.id)
       await axios.put(
-        `http://localhost:3003/api/v1/driver/${driver.id}`,
+        `${import.meta.env.VITE_DELIVER_SERVICE_URL}/api/v1/driver/${driver.id}`,
         formData,
         {
           headers: {

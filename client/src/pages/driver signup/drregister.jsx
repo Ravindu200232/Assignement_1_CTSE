@@ -41,7 +41,7 @@ export default function DriverRegister() {
     }
 
     try {
-      await axios.post(`http://localhost:3003/api/v1/driver`, {
+      await axios.post(`${import.meta.env.VITE_DELIVER_SERVICE_URL}/api/v1/driver`, {
         email,
         password,
         firstName,

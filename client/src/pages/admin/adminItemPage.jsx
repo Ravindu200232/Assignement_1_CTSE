@@ -15,7 +15,7 @@ export default function AdminItemPage() {
     if (!itemsLoaded && restaurantId) {
       const token = localStorage.getItem("token");
       axios
-        .get(`http://localhost:3002/api/v1/collection/getAll/${restaurantId}`, {
+        .get(`${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/collection/getAll/${restaurantId}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => {
@@ -40,7 +40,7 @@ export default function AdminItemPage() {
               onClick={() => {
                 toast.dismiss(t.id);
                 axios
-                  .delete(`http://localhost:3002/api/v1/collection/delete/${itemId}`, {
+                  .delete(`${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/collection/delete/${itemId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                   })
                   .then(() => {
@@ -75,7 +75,7 @@ export default function AdminItemPage() {
   const handleApprove = (collectionId) => {
     const token = localStorage.getItem("token");
     axios
-      .post(`http://localhost:3002/api/v1/collection/isApprove/${collectionId}`, {}, {
+      .post(`${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/collection/isApprove/${collectionId}`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(() => {

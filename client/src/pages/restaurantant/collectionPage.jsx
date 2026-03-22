@@ -18,7 +18,7 @@ export default function CollectionPage() {
     if (!itemsLoaded && restaurantId) {
       const token = localStorage.getItem("token");
       axios
-        .get(`http://localhost:3002/api/v1/collection/getAll/${restaurantId}`, {
+        .get(`${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/collection/getAll/${restaurantId}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => {
@@ -44,7 +44,7 @@ const handleDelete = (itemId) => {
             onClick={() => {
               toast.dismiss(t.id);
               axios
-                .delete(`http://localhost:3002/api/v1/collection/delete/${itemId}`, {
+                .delete(`${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/collection/delete/${itemId}`, {
                   headers: { Authorization: `Bearer ${token}` },
                 })
                 .then(() => {

@@ -15,7 +15,7 @@ export default function Login() {
     onSuccess: (res) => {
       console.log(res);
       axios
-        .post(`http://localhost:3000/api/v1/users/google`, {
+        .post(`${import.meta.env.VITE_USER_SERVICE_URL}/api/v1/users/google`, {
           accessToken: res.access_token,
         })
         .then((res) => {
@@ -58,7 +58,7 @@ export default function Login() {
     e.preventDefault(); //default submit refresh to prevent page reload
 
     axios
-      .post(`http://localhost:3000/api/v1/users/login`, {
+      .post(`${import.meta.env.VITE_USER_SERVICE_URL}/api/v1/users/login`, {
         email: email,
         password: password,
       })

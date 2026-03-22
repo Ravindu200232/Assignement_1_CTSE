@@ -27,7 +27,7 @@ export default function AdminPackagePage() {
     if (result.isConfirmed) {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.delete(`http://localhost:3002/api/v1/restaurant/delete/${id}`, {
+        const response = await axios.delete(`${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/restaurant/delete/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -59,7 +59,7 @@ export default function AdminPackagePage() {
       const token = localStorage.getItem("token");
 
       const response = await axios.put(
-        `http://localhost:3002/api/v1/restaurant/update/${id}`,
+        `${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/restaurant/update/${id}`,
         {},
         {
           headers: {
@@ -87,15 +87,20 @@ export default function AdminPackagePage() {
     }
   };
 
-  const fetchRestaurants = async () => {
+
+const fetchRestaurants = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:3002/api/v1/restaurant", {
+      const response = await axios.get(`${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/restaurant`, { // <-- backtick!
         headers: { Authorization: `Bearer ${token}` },
       });
-      setRestaurants(response.data);
+
+      // Bug 2 fix: guard against non-array response shapes
+      const data = response.data;
+      setRestaurants(Array.isArray(data) ? data : data.restaurants ?? data.data ?? []);
     } catch (error) {
       console.error("Failed to fetch restaurants:", error);
+      setRestaurants([]); // prevent map crash on error too
     } finally {
       setLoading(false);
     }
@@ -109,8 +114,8 @@ export default function AdminPackagePage() {
     try {
       const token = localStorage.getItem("token");
       const endpoint = shouldOpen
-        ? `http://localhost:3002/api/v1/restaurant/isOpen/${id}`
-        : `http://localhost:3002/api/v1/restaurant/isClose/${id}`;
+        ? `${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/restaurant/isOpen/${id}`
+        : `${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/restaurant/isClose/${id}`;
 
       const response = await axios.post(
         endpoint,

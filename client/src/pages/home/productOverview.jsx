@@ -24,7 +24,7 @@ export default function FoodItemOverview() {
   useEffect(() => {
     // Fetch food item details
     axios
-      .get(`http://localhost:3002/api/v1/collection/getOne/${key}`)
+      .get(`${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/collection/getOne/${key}`)
       .then((res) => {
         setFoodItem(res.data);
         setLoadingStatus("Loaded");
@@ -34,7 +34,7 @@ export default function FoodItemOverview() {
         if (res.data.restaurantId) {
           axios
             .get(
-              `http://localhost:3002/api/v1/restaurant/getOne/${res.data.restaurantId}`
+              `${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/restaurant/getOne/${res.data.restaurantId}`
             )
             .then((restaurantRes) => setRestaurant(restaurantRes.data))
             .catch((err) => console.error("Failed to load restaurant", err));
@@ -48,7 +48,7 @@ export default function FoodItemOverview() {
 
     // Fetch reviews
     axios
-      .get(`http://localhost:3002/api/v1/reviews/${key}`)
+      .get(`${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/reviews/${key}`)
       .then((res) => {
         setReviews(res.data);
         console.log(res.data)
@@ -68,7 +68,7 @@ export default function FoodItemOverview() {
 
     try {
       const response = await axios.post(
-        `http://localhost:3002/api/v1/reviews`,
+        `${import.meta.env.VITE_RESTAURANT_SERVICE_URL}/api/v1/reviews`,
         {
           productId: key,
           rating: userRating,
