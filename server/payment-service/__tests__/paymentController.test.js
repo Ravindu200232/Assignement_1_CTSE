@@ -5,7 +5,7 @@ jest.mock('../models/payment.js', () => {
     save: jest.fn().mockResolvedValue({ _id: 'pay123', ...data }),
   }));
   MockPayment.find = jest.fn();
-  return { default: MockPayment };
+  return { __esModule: true, default: MockPayment };
 });
 
 jest.mock('bcrypt', () => ({

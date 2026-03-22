@@ -44,7 +44,7 @@ export const makePayment = async (req, res) => {
 
 export const getAllPayments = async (req, res) => {
   try {
-    if (!checkAdmin(req)) {
+    if (!req.user || !checkAdmin(req)) {
       return res.status(403).json({ message: "Access denied. Admins only." });
     }
 

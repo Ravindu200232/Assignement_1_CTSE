@@ -8,7 +8,7 @@ jest.mock('../models/inquiry.js', () => {
   MockInquiry.findOne   = jest.fn();
   MockInquiry.updateOne = jest.fn();
   MockInquiry.deleteOne = jest.fn();
-  return { default: MockInquiry };
+  return { __esModule: true, default: MockInquiry };
 });
 
 import Inquiry from '../models/inquiry.js';
@@ -34,7 +34,10 @@ describe('addInquiry', () => {
       user: { email: 'c@c.com', phone: '0771234567' },
     });
     const res = mockRes();
-    Inquiry.find.mockResolvedValue([]);
+    // Controller calls Inquiry.find().sort({id:-1}).limit(1) — mock the chain
+    Inquiry.find.mockReturnValue({
+      sort: jest.fn().mockReturnValue({ limit: jest.fn().mockResolvedValue([]) }),
+    });
 
     await addInquiry(req, res);
 

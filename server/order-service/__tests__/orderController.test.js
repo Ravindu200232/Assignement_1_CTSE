@@ -2,7 +2,7 @@ jest.mock('../models/collection.js', () => {
   const MockCollection = jest.fn();
   MockCollection.findById = jest.fn();
   MockCollection.findOne  = jest.fn();
-  return { default: MockCollection };
+  return { __esModule: true, default: MockCollection };
 });
 
 jest.mock('../models/order.js', () => {
@@ -16,7 +16,7 @@ jest.mock('../models/order.js', () => {
   MockOrder.findOneAndUpdate = jest.fn();
   MockOrder.updateOne       = jest.fn();
   MockOrder.deleteOne       = jest.fn();
-  return { default: MockOrder };
+  return { __esModule: true, default: MockOrder };
 });
 
 jest.mock('axios', () => ({ get: jest.fn(), put: jest.fn().mockResolvedValue({ data: {} }) }));
@@ -59,7 +59,10 @@ describe('addOrder', () => {
     });
     const res = mockRes();
     Collection.findById.mockResolvedValue(product);
-    Order.find.mockResolvedValue([{ orderId: 'ORD0000' }]);
+    // Controller calls Order.find().sort({ orderId: -1 }).limit(1) — mock the chain
+    Order.find.mockReturnValue({
+      sort: jest.fn().mockReturnValue({ limit: jest.fn().mockResolvedValue([{ orderId: 'ORD0000' }]) }),
+    });
 
     await addOrder(req, res);
 

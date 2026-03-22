@@ -7,7 +7,7 @@ jest.mock('../models/delivery.js', () => {
   MockDelivery.find            = jest.fn();
   MockDelivery.findOne         = jest.fn();
   MockDelivery.findByIdAndUpdate = jest.fn();
-  return { default: MockDelivery };
+  return { __esModule: true, default: MockDelivery };
 });
 
 jest.mock('axios', () => ({

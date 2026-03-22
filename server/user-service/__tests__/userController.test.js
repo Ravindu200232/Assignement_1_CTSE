@@ -9,7 +9,7 @@ jest.mock('../models/users.js', () => {
   MockUser.find    = jest.fn();
   MockUser.updateOne = jest.fn();
   MockUser.deleteOne = jest.fn();
-  return { default: MockUser };
+  return { __esModule: true, default: MockUser };
 });
 
 jest.mock('../models/otp.js', () => {
@@ -19,13 +19,13 @@ jest.mock('../models/otp.js', () => {
   }));
   MockOTP.findOne  = jest.fn();
   MockOTP.deleteOne = jest.fn();
-  return { default: MockOTP };
+  return { __esModule: true, default: MockOTP };
 });
 
 jest.mock('../models/driver.js', () => {
   const MockDriver = jest.fn();
   MockDriver.findOne = jest.fn();
-  return { default: MockDriver };
+  return { __esModule: true, default: MockDriver };
 });
 
 jest.mock('bcrypt', () => ({

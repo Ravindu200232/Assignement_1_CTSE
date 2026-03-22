@@ -8,7 +8,7 @@ jest.mock('../models/driver.js', () => {
   MockDriver.find      = jest.fn();
   MockDriver.updateOne = jest.fn();
   MockDriver.deleteOne = jest.fn();
-  return { default: MockDriver };
+  return { __esModule: true, default: MockDriver };
 });
 
 jest.mock('bcrypt', () => ({

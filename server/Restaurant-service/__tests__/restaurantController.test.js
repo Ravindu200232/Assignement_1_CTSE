@@ -8,7 +8,7 @@ jest.mock('../models/resturants.js', () => {
   MockRestaurant.findOne   = jest.fn();
   MockRestaurant.updateOne = jest.fn();
   MockRestaurant.deleteOne = jest.fn();
-  return { default: MockRestaurant };
+  return { __esModule: true, default: MockRestaurant };
 });
 
 import Restaurant from '../models/resturants.js';
