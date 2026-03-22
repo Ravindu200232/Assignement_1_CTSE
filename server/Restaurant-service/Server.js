@@ -17,7 +17,11 @@ dotenv.config();
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -27,7 +31,6 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 app.use(limiter);
-
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
@@ -35,7 +38,7 @@ app.use((req, res, next) => {
   if (token != null) {
     token = token.replace('Bearer ', '');
     jwt.verify(token, process.env.SEKRET_KEY, (err, decode) => {
-      if (!err) { req.user = decode; }
+      if (!err) req.user = decode;
     });
   }
   next();
@@ -49,7 +52,7 @@ const swaggerOptions = {
       version: '1.0.0',
       description: 'Restaurant Service for Food Ordering App',
     },
-    servers: [{ url: `${process.env.RESTAURANT_SERVICE_URL}` }],
+    servers: [{ url: '/' }],
     components: {
       securitySchemes: {
         bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
@@ -58,9 +61,21 @@ const swaggerOptions = {
   },
   apis: ['./routes/*.js'],
 };
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.get('/api-docs.json', (req, res) => res.json(swaggerSpec));
+
+app.use('/api-docs', swaggerUi.serve, (req, res, next) => {
+  const protocol = req.headers['x-forwarded-proto'] || 'http';
+  const host = req.headers.host;
+  swaggerOptions.definition.servers = [{ url: `${protocol}://${host}` }];
+  const dynamicSpec = swaggerJsdoc(swaggerOptions);
+  swaggerUi.setup(dynamicSpec)(req, res, next);
+});
+
+app.get('/api-docs.json', (req, res) => {
+  const protocol = req.headers['x-forwarded-proto'] || 'http';
+  const host = req.headers.host;
+  swaggerOptions.definition.servers = [{ url: `${protocol}://${host}` }];
+  res.json(swaggerJsdoc(swaggerOptions));
+});
 
 connectToDatabase();
 
