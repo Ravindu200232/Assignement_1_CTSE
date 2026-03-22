@@ -14,7 +14,14 @@ dotenv.config();
 
 const app = express();
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: false,
+  hsts: false,
+}));
+
+
 app.use(cors());
 
 const limiter = rateLimit({

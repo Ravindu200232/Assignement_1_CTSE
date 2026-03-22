@@ -16,7 +16,12 @@ dotenv.config();
 const app = express();
 
 // Security headers
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: false,
+  hsts: false,
+}));
 
 // CORS
 app.use(cors());
