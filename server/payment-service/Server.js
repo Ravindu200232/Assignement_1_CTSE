@@ -47,7 +47,7 @@ const swaggerOptions = {
       version: '1.0.0',
       description: 'Payment Service for Food Ordering App',
     },
-    servers: [{ url: `http://localhost:${process.env.PORT || 3004}` }],
+    servers: [{ url: `${process.env.PAYMENT_SERVICE_URL}` }],
     components: {
       securitySchemes: {
         bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },

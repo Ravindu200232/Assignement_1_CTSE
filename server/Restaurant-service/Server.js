@@ -49,7 +49,7 @@ const swaggerOptions = {
       version: '1.0.0',
       description: 'Restaurant Service for Food Ordering App',
     },
-    servers: [{ url: `http://localhost:${process.env.PORT || 3002}` }],
+    servers: [{ url: `${process.env.RESTAURANT_SERVICE_URL}` }],
     components: {
       securitySchemes: {
         bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },

@@ -56,7 +56,7 @@ const swaggerOptions = {
       version: '1.0.0',
       description: 'User authentication and management microservice for Food Ordering App',
     },
-     servers: [{ url: `http://localhost:${process.env.PORT || 3005}` }],
+     servers: [{ url: `${process.env.USER_SERVICE_URL}` }],
     components: {
       securitySchemes: {
         bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },

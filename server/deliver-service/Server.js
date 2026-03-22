@@ -50,7 +50,7 @@ const swaggerOptions = {
       version: "1.0.0",
       description: "Delivery Service for Food Ordering App",
     },
-    servers: [{ url: `http://localhost:${process.env.PORT || 3005}` }],
+    servers: [{ url: `${process.env.DELIVERY_SERVICE_URL}` }],
     components: {
       securitySchemes: {
         bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT" },
