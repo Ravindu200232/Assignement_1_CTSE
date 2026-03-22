@@ -15,19 +15,8 @@ dotenv.config();
 
 const app = express();
 
-app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false,
-  crossOriginOpenerPolicy: false,
-  hsts: false,
-}));
-
-
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(helmet());
+app.use(cors());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -37,6 +26,7 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 app.use(limiter);
+
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
@@ -44,7 +34,9 @@ app.use((req, res, next) => {
   if (token != null) {
     token = token.replace("Bearer ", "");
     jwt.verify(token, process.env.SEKRET_KEY, (err, decode) => {
-      if (!err) req.user = decode;
+      if (!err) {
+        req.user = decode;
+      }
     });
   }
   next();
@@ -58,7 +50,7 @@ const swaggerOptions = {
       version: "1.0.0",
       description: "Delivery Service for Food Ordering App",
     },
-    servers: [{ url: "/" }],
+    servers: [{ url: process.env.SERVER_URL || `http://localhost:${process.env.PORT || 3005}` }],
     components: {
       securitySchemes: {
         bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT" },
@@ -67,33 +59,26 @@ const swaggerOptions = {
   },
   apis: ["./routes/*.js"],
 };
-
-app.use('/api-docs', swaggerUi.serve, (req, res, next) => {
-  const protocol = req.headers['x-forwarded-proto'] || 'http';
-  const host = req.headers.host;
-  swaggerOptions.definition.servers = [{ url: `${protocol}://${host}` }];
-  const dynamicSpec = swaggerJsdoc(swaggerOptions);
-  swaggerUi.setup(dynamicSpec)(req, res, next);
-});
-
-app.get('/api-docs.json', (req, res) => {
-  const protocol = req.headers['x-forwarded-proto'] || 'http';
-  const host = req.headers.host;
-  swaggerOptions.definition.servers = [{ url: `${protocol}://${host}` }];
-  res.json(swaggerJsdoc(swaggerOptions));
-});
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get("/api-docs.json", (req, res) => res.json(swaggerSpec));
 
 connectToDatabase();
 
 app.get("/health", (req, res) => {
-  res.json({ status: "healthy", service: "deliver-service", timestamp: new Date().toISOString() });
+  res.json({
+    status: "healthy",
+    service: "deliver-service",
+    timestamp: new Date().toISOString(),
+  });
 });
 
 app.use("/api/v1/driver", driverRoute);
 app.use("/api/v1/delivery", deliveryRoute);
 
-const PORT = process.env.PORT || 3003;
+const PORT = process.env.PORT || 3005;
 app.listen(PORT, () => {
   console.log(`Deliver service running on port ${PORT}`);
+
   console.log(`Environment: ${process.env.NODE_ENV}`);
 });

@@ -21,13 +21,15 @@ env:
 
 jobs:
   security-scan:
-    name: Security Scan (Snyk)
+    name: Security Scan (Snyk + SonarCloud)
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -47,6 +49,18 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk test --severity-threshold=high || true
         shell: bash
+
+      - name: Run unit tests with coverage
+        working-directory: ./server/Restaurant-service
+        run: npm test -- --coverage --coverageReporters=lcov --coverageReporters=text || true
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: ./server/Restaurant-service
 
   build-and-push:
     name: Build & Push to ECR
