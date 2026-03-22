@@ -1,31 +1,39 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import dotenv from 'dotenv';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import swaggerJsdoc from 'swagger-jsdoc';
-import swaggerUi from 'swagger-ui-express';
-import { connectToDatabase } from './DbConnection.js';
-import jwt from 'jsonwebtoken';
-import cors from 'cors';
-import userRoute from './routes/userRoute.js';
-import inquiryRouter from './routes/inquiryRouter.js';
+import express from "express";
+import bodyParser from "body-parser";
+import dotenv from "dotenv";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import { connectToDatabase } from "./DbConnection.js";
+import jwt from "jsonwebtoken";
+import cors from "cors";
+import userRoute from "./routes/userRoute.js";
+import inquiryRouter from "./routes/inquiryRouter.js";
 
 dotenv.config();
 
 const app = express();
 
-app.use(helmet());
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: false,
+  hsts: false,
 }));
+
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
-  message: { error: 'Too many requests, please try again later.' },
+  message: { error: "Too many requests, please try again later." },
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -33,9 +41,9 @@ app.use(limiter);
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
-  let token = req.header('Authorization');
+  let token = req.header("Authorization");
   if (token != null) {
-    token = token.replace('Bearer ', '');
+    token = token.replace("Bearer ", "");
     jwt.verify(token, process.env.SEKRET_KEY, (err, decode) => {
       if (!err) req.user = decode;
     });
@@ -45,32 +53,33 @@ app.use((req, res, next) => {
 
 const swaggerOptions = {
   definition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'User Service API',
-      version: '1.0.0',
-      description: 'User authentication and management microservice for Food Ordering App',
+      title: "User Service API",
+      version: "1.0.0",
+      description:
+        "User authentication and management microservice for Food Ordering App",
     },
-    servers: [{ url: '/' }],
+    servers: [{ url: "/" }],
     components: {
       securitySchemes: {
-        bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+        bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT" },
       },
     },
   },
-  apis: ['./routes/*.js'],
+  apis: ["./routes/*.js"],
 };
 
-app.use('/api-docs', swaggerUi.serve, (req, res, next) => {
-  const protocol = req.headers['x-forwarded-proto'] || 'http';
+app.use("/api-docs", swaggerUi.serve, (req, res, next) => {
+  const protocol = req.headers["x-forwarded-proto"] || "http";
   const host = req.headers.host;
   swaggerOptions.definition.servers = [{ url: `${protocol}://${host}` }];
   const dynamicSpec = swaggerJsdoc(swaggerOptions);
   swaggerUi.setup(dynamicSpec)(req, res, next);
 });
 
-app.get('/api-docs.json', (req, res) => {
-  const protocol = req.headers['x-forwarded-proto'] || 'http';
+app.get("/api-docs.json", (req, res) => {
+  const protocol = req.headers["x-forwarded-proto"] || "http";
   const host = req.headers.host;
   swaggerOptions.definition.servers = [{ url: `${protocol}://${host}` }];
   res.json(swaggerJsdoc(swaggerOptions));
@@ -78,12 +87,16 @@ app.get('/api-docs.json', (req, res) => {
 
 connectToDatabase();
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', service: 'user-service', timestamp: new Date().toISOString() });
+app.get("/health", (req, res) => {
+  res.json({
+    status: "healthy",
+    service: "user-service",
+    timestamp: new Date().toISOString(),
+  });
 });
 
-app.use('/api/v1/users', userRoute);
-app.use('/api/inquiry', inquiryRouter);
+app.use("/api/v1/users", userRoute);
+app.use("/api/inquiry", inquiryRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
