@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
   secure: false,
   auth: {
     user: "ravindusubasinha082@gmail.com",
-    pass: "mbvi tbqp spgl lmia", // Use your app password
+    pass: "ikil mgbd bzjj gmkq", // Use your app password
   },
 });
 
