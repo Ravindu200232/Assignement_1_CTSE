@@ -39,18 +39,20 @@ jest.mock('jsonwebtoken', () => ({
 
 jest.mock('nodemailer', () => ({
   createTransport: jest.fn().mockReturnValue({
-    sendMail: jest.fn((opts, cb) => cb(null, { messageId: 'test-123' })),
+    sendMail: jest.fn().mockResolvedValue({ messageId: 'test-123' }),
   }),
 }));
 
 jest.mock('axios', () => ({ get: jest.fn(), post: jest.fn() }));
 
-import User   from '../models/users.js';
+import User from '../models/users.js';
+import OTP from '../models/otp.js';
 import Driver from '../models/driver.js';
 import bcrypt from 'bcrypt';
+import nodemailer from 'nodemailer';
 import {
   createUser, userLogin, getUsers,
-  getOneUser, updateUser, deleteUser, changePassword,
+  getOneUser, updateUser, deleteUser, changePassword, sendOTP,
 } from '../controllers/userController.js';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -65,7 +67,11 @@ const mockRes = () => {
   return res;
 };
 
-beforeEach(() => jest.clearAllMocks());
+beforeEach(() => {
+  process.env.EMAIL_USER = 'sender@example.com';
+  process.env.EMAIL_PASS = 'test-app-password';
+  jest.clearAllMocks();
+});
 
 // ── createUser ────────────────────────────────────────────────────────────────
 describe('createUser', () => {
@@ -263,13 +269,42 @@ describe('changePassword', () => {
       user: { id: 'u1' },
     });
     const res = mockRes();
-    User.findOne.mockResolvedValue({ _id: 'u1', password: 'hashed' });
+    const transporter = nodemailer.createTransport();
+    User.findOne.mockResolvedValue({ _id: 'u1', password: 'hashed', email: 'user@example.com', firstName: 'Jane' });
     bcrypt.compareSync.mockReturnValue(true);
     User.updateOne.mockResolvedValue({ modifiedCount: 1 });
 
     await changePassword(req, res);
 
-    expect(res.json).toHaveBeenCalledWith({ message: 'User password updated successfully' });
+    expect(transporter.sendMail).toHaveBeenCalledWith(expect.objectContaining({
+      to: 'user@example.com',
+      subject: 'Your Food Delivery App password was changed',
+    }));
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'User password updated successfully',
+      notificationSent: true,
+    });
+  });
+
+  it('still returns success when the password change email fails', async () => {
+    const req = mockReq({
+      params: { id: 'u1' },
+      body: { oldPassword: 'oldpass', newPassword: 'newpass' },
+      user: { id: 'u1' },
+    });
+    const res = mockRes();
+    const transporter = nodemailer.createTransport();
+    transporter.sendMail.mockRejectedValueOnce(new Error('SMTP error'));
+    User.findOne.mockResolvedValue({ _id: 'u1', password: 'hashed', email: 'user@example.com', firstName: 'Jane' });
+    bcrypt.compareSync.mockReturnValue(true);
+    User.updateOne.mockResolvedValue({ modifiedCount: 1 });
+
+    await changePassword(req, res);
+
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'User password updated successfully',
+      notificationSent: false,
+    });
   });
 
   it('returns 401 for incorrect old password', async () => {
@@ -295,5 +330,37 @@ describe('changePassword', () => {
     await changePassword(req, res);
 
     expect(res.status).toHaveBeenCalledWith(401);
+  });
+});
+
+describe('sendOTP', () => {
+  it('sends an OTP email for logged-in users', async () => {
+    const req = mockReq({ user: { email: 'otp@example.com' } });
+    const res = mockRes();
+    const transporter = nodemailer.createTransport();
+
+    await sendOTP(req, res);
+
+    expect(OTP).toHaveBeenCalledWith(expect.objectContaining({
+      email: 'otp@example.com',
+      otp: expect.any(Number),
+    }));
+    expect(transporter.sendMail).toHaveBeenCalledWith(expect.objectContaining({
+      to: 'otp@example.com',
+      subject: 'OTP for verification',
+    }));
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      message: 'OTP sent successfully',
+    }));
+  });
+
+  it('returns 401 when the user is not logged in', async () => {
+    const req = mockReq({ user: null });
+    const res = mockRes();
+
+    await sendOTP(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({ message: 'please login and try again' });
   });
 });

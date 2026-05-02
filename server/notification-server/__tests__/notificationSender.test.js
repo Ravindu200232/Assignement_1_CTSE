@@ -49,7 +49,11 @@ const mockRestaurant = {
   phone:     '+94112345678',
 };
 
-beforeEach(() => jest.clearAllMocks());
+beforeEach(() => {
+  process.env.EMAIL_USER = 'sender@example.com';
+  process.env.EMAIL_PASS = 'test-app-password';
+  jest.clearAllMocks();
+});
 
 // ── EmailSender ───────────────────────────────────────────────────────────────
 describe('EmailSender', () => {

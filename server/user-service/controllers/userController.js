@@ -3,23 +3,9 @@ import User from '../models/users.js';
 import jwt from "jsonwebtoken"
 import { checkAdmin, checkHasAccount } from './authController.js';
 import OTP from '../models/otp.js';
-import nodemailer from 'nodemailer';
 import Driver from '../models/driver.js';
 import axios from 'axios'
-
-
-
-
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: "ravindusubasinha082@gmail.com",
-      pass: "ikil mgbd bzjj gmkq", // use app password
-    },
-  })
+import { getSenderAddress, getTransporter } from '../mailTransporter.js';
 
 
 export async function createUser(req,res){
@@ -338,8 +324,33 @@ export async function getUsers(req, res) {
             await User.updateOne({_id : id},{
               password : newPassword
             });
+
+            let notificationSent = true;
+            try {
+              const transporter = getTransporter();
+              const changedAt = new Date().toISOString();
+
+              await transporter.sendMail({
+                from : getSenderAddress(),
+                to : user.email,
+                subject : "Your Food Delivery App password was changed",
+                text : `Hello ${user.firstName || "there"}, your Food Delivery App password was changed on ${changedAt}. If you did not make this change, please contact support immediately.`,
+                html : `
+                  <h2>Password Changed</h2>
+                  <p>Hello <strong>${user.firstName || "there"}</strong>,</p>
+                  <p>This is a confirmation that your Food Delivery App password was changed.</p>
+                  <p><strong>Changed at:</strong> ${changedAt}</p>
+                  <p>If you did not make this change, please contact support immediately.</p>
+                `
+              });
+            } catch (mailError) {
+              notificationSent = false;
+              console.error("Password change email failed:", mailError.message);
+            }
+
             res.json({
-              message : "User password updated successfully"
+              message : "User password updated successfully",
+              notificationSent : notificationSent
             })
           }else{
             res.status(401).json({
@@ -436,7 +447,7 @@ export async function getUsers(req, res) {
     }
   }
   
-  export async function sendOTP(req, res) {
+export async function sendOTP(req, res) {
   
   
   
@@ -448,36 +459,37 @@ export async function getUsers(req, res) {
       return
     }
   
-    //generete number betwen 1000 and 9999
-    const otp = Math.floor(1000 + Math.random() * 9000); 
-    const newOTP = new OTP({
-      email : req.user.email,
-      otp : otp,
-    });
-    await newOTP.save();
-  
-    const message ={
-      from : "ravindusubasinha082@gmail.com",
-      to : req.user.email,
-      subject : "OTP for verification",
-      text : `Your OTP is ${otp}`
-    }
-  
-    transporter.sendMail(message,(err,info)=>{
-      if(err){
-        console.log(err);
-        res.status(500).json({
-          message : "Failed to send OTP",
-          error : err.message,
-        })
-      }else{
-        console.log(info);
-        res.json({
-          message : "OTP sent successfully",
-          info : info,
-        })
+    try{
+      const transporter = getTransporter();
+
+      //generete number betwen 1000 and 9999
+      const otp = Math.floor(1000 + Math.random() * 9000); 
+      const newOTP = new OTP({
+        email : req.user.email,
+        otp : otp,
+      });
+      await newOTP.save();
+    
+      const message ={
+        from : getSenderAddress(),
+        to : req.user.email,
+        subject : "OTP for verification",
+        text : `Your OTP is ${otp}`
       }
-    })
+
+      const info = await transporter.sendMail(message);
+      console.log(info);
+      res.json({
+        message : "OTP sent successfully",
+        info : info,
+      })
+    }catch(err){
+      console.log(err);
+      res.status(500).json({
+        message : "Failed to send OTP",
+        error : err.message,
+      })
+    }
   
   }
   

@@ -1,20 +1,10 @@
-import nodemailer from "nodemailer";
 import axios from "axios";
-
-// Email Transporter Configuration
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: "ravindusubasinha082@gmail.com",
-    pass: "ikil mgbd bzjj gmkq", // Use your app password
-  },
-});
+import { getSenderAddress, getTransporter } from "../mailTransporter.js";
 
 export async function EmailSender(req, res) {
   try {
+    const transporter = getTransporter();
+    const senderAddress = getSenderAddress();
     const {
       orderId,
       driverId,
@@ -31,19 +21,17 @@ export async function EmailSender(req, res) {
       itemName,
       qty,
       totalPrice,
-      restaurantId, // Make sure this is sent in the req.body
+      restaurantId,
     } = req.body;
 
-    // Fetch restaurant info
-    const restaurantServiceUrl = process.env.RESTAURANT_SERVICE_URL || 'http://localhost:3002';
+    const restaurantServiceUrl = process.env.RESTAURANT_SERVICE_URL || "http://localhost:3002";
     const restaurantRes = await axios.get(`${restaurantServiceUrl}/api/v1/restaurant/getOne/${restaurantId}`);
     const restaurant = restaurantRes.data?.data;
 
     const locationLink = `https://www.google.com/maps?q=${lat},${lng}`;
 
-    // Email to Driver
     const driverMailOptions = {
-      from: '"Food Delivery App" <ravindusubasinha082@gmail.com>',
+      from: senderAddress,
       to: driverEmail,
       subject: `New Delivery Assigned - Order ${orderId}`,
       html: `
@@ -63,15 +51,14 @@ export async function EmailSender(req, res) {
         <h3>Restaurant Info</h3>
         <p><strong>${restaurant?.name}</strong></p>
         <p>Owned by: <strong>${restaurant?.ownerName}</strong></p>
-        <p>📍 ${restaurant?.address}</p>
-        <p>📞 ${restaurant?.phone}</p>
+        <p>Location: ${restaurant?.address}</p>
+        <p>Phone: ${restaurant?.phone}</p>
         <p>Please deliver the item on time. Thank you!</p>
       `,
     };
 
-    // Email to Customer
     const customerMailOptions = {
-      from: '"Food Delivery App" <ravindusubasinha082@gmail.com>',
+      from: senderAddress,
       to: customerEmail,
       subject: `Your Order ${orderId} is on the way!`,
       html: `
@@ -91,13 +78,12 @@ export async function EmailSender(req, res) {
         <h3>Restaurant Info</h3>
         <p><strong>${restaurant?.name}</strong></p>
         <p>Owned by: <strong>${restaurant?.ownerName}</strong></p>
-        <p>📍 ${restaurant?.address}</p>
-        <p>📞 ${restaurant?.phone}</p>
+        <p>Location: ${restaurant?.address}</p>
+        <p>Phone: ${restaurant?.phone}</p>
         <p>Thank you for ordering with us!</p>
       `,
     };
 
-    // Send emails
     await transporter.sendMail(driverMailOptions);
     await transporter.sendMail(customerMailOptions);
 
