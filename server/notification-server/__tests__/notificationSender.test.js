@@ -109,17 +109,17 @@ describe('EmailSender', () => {
     expect(customerMailCall.subject).toContain(validBody.orderId);
   });
 
-  it('returns 500 when restaurant service fails', async () => {
+  it('still sends emails when restaurant service fails', async () => {
     const req = mockReq({ body: validBody });
     const res = mockRes();
+    const transporter = nodemailer.createTransport();
     axios.get.mockRejectedValue(new Error('Restaurant service unreachable'));
 
     await EmailSender(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Failed to send email' }),
-    );
+    expect(transporter.sendMail).toHaveBeenCalledTimes(2);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Emails sent successfully' });
   });
 
   it('returns 500 when email sending fails', async () => {

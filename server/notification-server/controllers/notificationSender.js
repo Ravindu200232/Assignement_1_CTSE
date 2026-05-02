@@ -22,13 +22,43 @@ export async function EmailSender(req, res) {
       qty,
       totalPrice,
       restaurantId,
+      restaurantName,
+      restaurantOwnerName,
+      restaurantAddress,
+      restaurantPhone,
     } = req.body;
 
-    const restaurantServiceUrl = process.env.RESTAURANT_SERVICE_URL || "http://localhost:3002";
-    const restaurantRes = await axios.get(`${restaurantServiceUrl}/api/v1/restaurant/getOne/${restaurantId}`);
-    const restaurant = restaurantRes.data?.data;
+    let restaurant = {
+      name: restaurantName,
+      ownerName: restaurantOwnerName,
+      address: restaurantAddress,
+      phone: restaurantPhone,
+    };
+
+    if (restaurantId) {
+      const restaurantServiceUrl = process.env.RESTAURANT_SERVICE_URL || "http://localhost:3002";
+
+      try {
+        const restaurantRes = await axios.get(`${restaurantServiceUrl}/api/v1/restaurant/getOne/${restaurantId}`);
+        restaurant = {
+          name: restaurantRes.data?.data?.name || restaurant.name,
+          ownerName: restaurantRes.data?.data?.ownerName || restaurant.ownerName,
+          address: restaurantRes.data?.data?.address || restaurant.address,
+          phone: restaurantRes.data?.data?.phone || restaurant.phone,
+        };
+      } catch (restaurantError) {
+        console.warn("Restaurant info unavailable for notification email:", restaurantError.message);
+      }
+    }
 
     const locationLink = `https://www.google.com/maps?q=${lat},${lng}`;
+    const restaurantSection = `
+        <h3>Restaurant Info</h3>
+        <p><strong>${restaurant?.name || "Restaurant details unavailable"}</strong></p>
+        ${restaurant?.ownerName ? `<p>Owned by: <strong>${restaurant.ownerName}</strong></p>` : ""}
+        ${restaurant?.address ? `<p>Location: ${restaurant.address}</p>` : ""}
+        ${restaurant?.phone ? `<p>Phone: ${restaurant.phone}</p>` : ""}
+      `;
 
     const driverMailOptions = {
       from: senderAddress,
@@ -48,11 +78,7 @@ export async function EmailSender(req, res) {
           <li><strong>Estimated Delivery Time:</strong> ${new Date(estimatedTime).toLocaleString()}</li>
           <li><strong>Location Link:</strong> <a href="${locationLink}" target="_blank">View on Map</a></li>
         </ul>
-        <h3>Restaurant Info</h3>
-        <p><strong>${restaurant?.name}</strong></p>
-        <p>Owned by: <strong>${restaurant?.ownerName}</strong></p>
-        <p>Location: ${restaurant?.address}</p>
-        <p>Phone: ${restaurant?.phone}</p>
+        ${restaurantSection}
         <p>Please deliver the item on time. Thank you!</p>
       `,
     };
@@ -75,11 +101,7 @@ export async function EmailSender(req, res) {
           <li><strong>Estimated Delivery Time:</strong> ${new Date(estimatedTime).toLocaleString()}</li>
           <li><strong>Track Location:</strong> <a href="${locationLink}" target="_blank">Live Location</a></li>
         </ul>
-        <h3>Restaurant Info</h3>
-        <p><strong>${restaurant?.name}</strong></p>
-        <p>Owned by: <strong>${restaurant?.ownerName}</strong></p>
-        <p>Location: ${restaurant?.address}</p>
-        <p>Phone: ${restaurant?.phone}</p>
+        ${restaurantSection}
         <p>Thank you for ordering with us!</p>
       `,
     };
